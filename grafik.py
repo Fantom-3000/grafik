@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 
 grafik = {}
-norma = 1993.0
+# norma = 1993.0
 month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 smena = {'Смена №1': [11, 3.5, 7.5, 0], 'Смена №2': [0, 11, 3.5, 7.5],
          'Смена №3': [7.5, 0, 11, 3.5], 'Смена №4': [3.5, 7.5, 0, 11]}
@@ -18,6 +18,7 @@ v_header = ['Январь', 'Февраль', 'Март', 'Апрель', 'Ма�
 
 # Обработчик нажатия кнопки. Вывод годового графика смены №...
 def enter_btn_click():
+    norma = float(norma_edit.text())
     smena_id = smena_cbox.currentText()
 
     row = 0
@@ -55,7 +56,7 @@ def enter_btn_click():
         row += 1
 
     # Вывод суммарного количества часов за год по факту
-    year_hours_count = hours_count()
+    year_hours_count = hours_count('all')
     table_model.setItem(
         12, 31, QtGui.QStandardItem(str(year_hours_count))
         )
@@ -71,13 +72,13 @@ def enter_btn_click():
         )
 
     # Вывод общего количества вечерних часов за год
-    year_evening_hours = year_evening_hours_count()
+    year_evening_hours = hours_count('evening')
     table_model.setItem(
         12, 32, QtGui.QStandardItem(str(year_evening_hours))
         )
 
     # Вывод общего количества ночных часов за год
-    year_night_hours = year_night_hours_count()
+    year_night_hours = hours_count('night')
     table_model.setItem(
         12, 33, QtGui.QStandardItem(str(year_night_hours))
         )
@@ -101,38 +102,37 @@ def creat_grafik():
                 str(month[month_id]), smena_month)
     return grafik
 
-# Подсчет общего количества часов за год
-def hours_count():
-    year_hours_count = 0
-    for row_index in range(12):
-        year_hours_count += float(
-            table_model.data(table_model.index(row_index, 31))
-            )
-    return year_hours_count
+# Подсчет общего, вечерних и ночных) количества часов за год
+def hours_count(time_of_day):
+    hours_count = 0
 
-# Подсчет общего количества вечерних часов за год
-def year_evening_hours_count():
-    year_evening_hours = 0
-    for row_index in range(12):
-        year_evening_hours += float(
-            table_model.data(table_model.index(row_index, 32))
-        )
-    return year_evening_hours
+    # Подсчет общего количества часов за год
+    if time_of_day == 'all':
+        for row_index in range(12):
+            hours_count += float(
+                table_model.data(table_model.index(row_index, 31))
+                )
 
-# Подсчет общего количества ночных часов за год
-def year_night_hours_count():
-    year_night_hours_count = 0
-    for row_index in range(12):
-        year_night_hours_count += float(
-            table_model.data(table_model.index(row_index, 33))
-        )
-    return year_night_hours_count
+    # Подсчет общего количества вечерних часов
+    elif time_of_day == 'evening':
+        for row_index in range(12):
+            hours_count += float(
+                table_model.data(table_model.index(row_index, 32))
+                )
+
+    # Подсчет общего количества ночных часов за год
+    elif time_of_day == 'night':
+        for row_index in range(12):
+            hours_count += float(
+                table_model.data(table_model.index(row_index, 33))
+                )
+
+    return hours_count
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
 
     window = QtWidgets.QWidget()
-    window.resize(1000, 600)
     window.setWindowState(QtCore.Qt.WindowMaximized)
     box = QtWidgets.QVBoxLayout(window)
     vbox1 = QtWidgets.QVBoxLayout()
@@ -151,12 +151,16 @@ if __name__ == '__main__':
     smena_cbox_model = QtCore.QStringListModel(smena.keys())
     smena_cbox = QtWidgets.QComboBox()
     smena_cbox.setModel(smena_cbox_model)
+    norma_edit = QtWidgets.QLineEdit('1993')
+    norma_edit.setFixedWidth(100)
+
     enter_btn = QtWidgets.QPushButton('Показать')
 
-    grafik = creat_grafik()
+    grafik = creat_grafik() # Формирование годового графика
 
     enter_btn.clicked.connect(enter_btn_click)
 
+    hbox1.addWidget(norma_edit)
     hbox1.addWidget(smena_cbox)
     hbox1.addWidget(enter_btn)
     vbox1.addWidget(table)   
