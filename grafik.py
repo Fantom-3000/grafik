@@ -158,6 +158,7 @@ if __name__ == '__main__':
     grafik = creat_grafik() # Формирование годового графика
 
     enter_btn.clicked.connect(enter_btn_click)
+    smena_cbox.currentTextChanged.connect(enter_btn_click)
 
     hbox1.addWidget(norma_edit)
     hbox1.addWidget(smena_cbox)
