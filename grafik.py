@@ -9,66 +9,13 @@ def enter_btn_click():
     row = 0
     for month_id in grafik[smena_id]:
         col = 0
-        month_hours_count = 0
-        evening_hours_count = 0
-        night_hours_count = 0
-
         for day_id in grafik[smena_id][month_id]:
-            if day_id == 0:
-                hours_day = QtGui.QStandardItem('В')
-            else:
-                hours_day = QtGui.QStandardItem(str(day_id))
+            hours_day = QtGui.QStandardItem(str(day_id))
             table_model.setItem(row, col, hours_day)
-            month_hours_count += day_id
-            if day_id == 11:
-                evening_hours_count += 2
-            elif day_id == 3.5:
-                evening_hours_count += 2
-                night_hours_count += 1.5
-            elif day_id == 7.5:
-                night_hours_count += 5.5
             col += 1
-
-        table_model.setItem(
-            row, 31, QtGui.QStandardItem(str(month_hours_count))
-            )
-        table_model.setItem(
-            row, 32, QtGui.QStandardItem(str(evening_hours_count))
-            )
-        table_model.setItem(
-            row, 33, QtGui.QStandardItem(str(night_hours_count))
-            )
         row += 1
+    hours_count()
 
-    # Вывод суммарного количества часов за год по факту
-    year_hours_count = hours_count('all')
-    table_model.setItem(
-        12, 31, QtGui.QStandardItem(str(year_hours_count))
-        )
-
-    # Вывод суммарного количества часов за год по норме    
-    table_model.setItem(
-        13, 31, QtGui.QStandardItem(str(norma))
-        )
-
-    # Вывод количества часов переработки за год
-    table_model.setItem(
-        14, 31, QtGui.QStandardItem(str(year_hours_count - norma))
-        )
-
-    # Вывод общего количества вечерних часов за год
-    year_evening_hours = hours_count('evening')
-    table_model.setItem(
-        12, 32, QtGui.QStandardItem(str(year_evening_hours))
-        )
-
-    # Вывод общего количества ночных часов за год
-    year_night_hours = hours_count('night')
-    table_model.setItem(
-        12, 33, QtGui.QStandardItem(str(year_night_hours))
-        )
-
-    table.resizeColumnsToContents()
 
 # Формирование годового графика всех смен
 def creat_grafik():
@@ -87,32 +34,88 @@ def creat_grafik():
                 str(month[month_id]), smena_month)
     return grafik
 
-# Подсчет общего, вечерних и ночных) количества часов за год
-def hours_count(time_of_day):
-    hours_count = 0
-
-    # Подсчет общего количества часов за год
-    if time_of_day == 'all':
-        for row_index in range(12):
-            hours_count += float(
-                table_model.data(table_model.index(row_index, 31))
+# Подсчет и вывод общего, вечерних и ночных количества часов за год
+def hours_count():
+    norm_hours_in_year = float(norma_edit.text())
+    # Подсчет часов за месяц
+    for row_index in range(12):
+        month_hours = 0
+        month_evening_hours = 0
+        month_night_hours = 0
+        for col_index in range(month_days[row_index]):
+            day_hours = float(
+                table_model.data(table_model.index(row_index, col_index))
                 )
+            month_hours += day_hours
+            if day_hours == 11:
+                month_evening_hours += 2
+            elif day_hours == 3.5:
+                month_evening_hours += 2
+                month_night_hours += 1.5
+            elif day_hours == 7.5:
+                month_night_hours += 5.5
+        # Вывод часов за месяц
+        table_model.setItem(
+            row_index, 31, QtGui.QStandardItem(str(month_hours))
+            )
+        table_model.setItem(
+            row_index, 32, QtGui.QStandardItem(str(month_evening_hours))
+            )
+        table_model.setItem(
+            row_index, 33, QtGui.QStandardItem(str(month_night_hours))
+            )
+
+    # Подсчет общего количества часов за год по факту
+    year_hours_count = 0
+    for row_index in range(12):
+        year_hours_count += float(
+            table_model.data(table_model.index(row_index, 31))
+            )
+    # Вывод суммарного количества часов за год по факту
+    table_model.setItem(
+        12, 31, QtGui.QStandardItem(str(year_hours_count))
+        )
+
+    # Вывод суммарного количества часов за год по норме    
+    table_model.setItem(
+        13, 31, QtGui.QStandardItem(str(norm_hours_in_year))
+        )
+
+    # Вывод количества часов переработки за год
+    table_model.setItem(
+        14, 31, QtGui.QStandardItem(
+            str(year_hours_count - norm_hours_in_year)
+            )
+        )
+
+    table.resizeColumnsToContents()
+'''
+    # Вывод общего количества вечерних часов за год
+    year_evening_hours = hours_count('year_evening_hours')
+    table_model.setItem(
+        12, 32, QtGui.QStandardItem(str(year_evening_hours))
+        )
+
+    # Вывод общего количества ночных часов за год
+    year_night_hours = hours_count('year_night_hours')
+    table_model.setItem(
+        12, 33, QtGui.QStandardItem(str(year_night_hours))
+        )
 
     # Подсчет общего количества вечерних часов
-    elif time_of_day == 'evening':
+    elif time_of_day == 'year_evening_hours':
         for row_index in range(12):
             hours_count += float(
                 table_model.data(table_model.index(row_index, 32))
                 )
 
     # Подсчет общего количества ночных часов за год
-    elif time_of_day == 'night':
+    elif time_of_day == 'year_night_hours':
         for row_index in range(12):
             hours_count += float(
                 table_model.data(table_model.index(row_index, 33))
-                )
-
-    return hours_count
+                )        
+'''          
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -153,11 +156,12 @@ if __name__ == '__main__':
     norma_edit = QtWidgets.QLineEdit('1993')
     norma_edit.setFixedWidth(100)
 
-    enter_btn = QtWidgets.QPushButton('Показать')
+    enter_btn = QtWidgets.QPushButton('Пересчитать')
 
     grafik = creat_grafik() # Формирование годового графика
+    enter_btn_click()
 
-    enter_btn.clicked.connect(enter_btn_click)
+    enter_btn.clicked.connect(hours_count)
     smena_cbox.currentTextChanged.connect(enter_btn_click)
 
     hbox1.addWidget(norma_edit)
