@@ -3,9 +3,7 @@ import sys
 
 # Обработчик нажатия кнопки. Вывод годового графика смены №...
 def enter_btn_click():
-    norma = float(norma_edit.text())
     smena_id = smena_cbox.currentText()
-
     row = 0
     for month_id in grafik[smena_id]:
         col = 0
