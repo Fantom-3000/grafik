@@ -16,7 +16,6 @@ def enter_btn_click():
         row += 1
     hours_count()
 
-
 # Формирование годового графика всех смен
 def creat_grafik():
     for smena_id in smena:
@@ -66,17 +65,31 @@ def hours_count():
             )
 
     # Подсчет общего количества часов за год по факту
-    year_hours_count = 0
+    year_hours_count = 0 # Общее количество часов за год
+    year_evening_hours_count = 0 # Общее количество вечерних часов за год
+    year_night_hours_count = 0 # Общее количестов ночных часов за год
     for row_index in range(12):
         year_hours_count += float(
             table_model.data(table_model.index(row_index, 31))
             )
+        year_evening_hours_count += float(
+            table_model.data(table_model.index(row_index, 32))
+        )
+        year_night_hours_count += float(
+            table_model.data(table_model.index(row_index, 33))
+        )
     # Вывод суммарного количества часов за год по факту
     table_model.setItem(
         12, 31, QtGui.QStandardItem(str(year_hours_count))
         )
+    table_model.setItem(
+        12, 32, QtGui.QStandardItem(str(year_evening_hours_count))
+    )
+    table_model.setItem(
+        12, 33, QtGui.QStandardItem(str(year_night_hours_count))
+    ) 
 
-    # Вывод суммарного количества часов за год по норме    
+    # Вывод количества часов за год по норме    
     table_model.setItem(
         13, 31, QtGui.QStandardItem(str(norm_hours_in_year))
         )
@@ -88,34 +101,7 @@ def hours_count():
             )
         )
 
-    table.resizeColumnsToContents()
-'''
-    # Вывод общего количества вечерних часов за год
-    year_evening_hours = hours_count('year_evening_hours')
-    table_model.setItem(
-        12, 32, QtGui.QStandardItem(str(year_evening_hours))
-        )
-
-    # Вывод общего количества ночных часов за год
-    year_night_hours = hours_count('year_night_hours')
-    table_model.setItem(
-        12, 33, QtGui.QStandardItem(str(year_night_hours))
-        )
-
-    # Подсчет общего количества вечерних часов
-    elif time_of_day == 'year_evening_hours':
-        for row_index in range(12):
-            hours_count += float(
-                table_model.data(table_model.index(row_index, 32))
-                )
-
-    # Подсчет общего количества ночных часов за год
-    elif time_of_day == 'year_night_hours':
-        for row_index in range(12):
-            hours_count += float(
-                table_model.data(table_model.index(row_index, 33))
-                )        
-'''          
+    table.resizeColumnsToContents()       
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
