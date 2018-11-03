@@ -16,7 +16,7 @@ def enter_btn_click():
 
 # Формирование годового графика всех смен
 def creat_grafik():
-    for smena_id in smena:
+    for smena_id in smena.keys():
         day = 0
         grafik.setdefault(smena_id, {})
         for month_id in range(12):
@@ -36,21 +36,25 @@ def hours_count():
     norm_hours_in_year = float(norma_edit.text())
     # Подсчет часов за месяц
     for row_index in range(12):
-        month_hours = 0
-        month_evening_hours = 0
-        month_night_hours = 0
+        month_hours = 0 # Общее количество часов за месяц
+        month_evening_hours = 0 # Общее количество вечерних часов за месяц 
+        month_night_hours = 0 # Общее количество ночных часов за месяц
         for col_index in range(month_days[row_index]):
-            day_hours = float(
+            day_hours = (
                 table_model.data(table_model.index(row_index, col_index))
                 )
-            month_hours += day_hours
+            if day_hours == 'В':
+                day_hours = 0
+            else:
+                day_hours = float(day_hours)
+            month_hours += day_hours # Счетчик общих часов за месяц
             if day_hours == 11:
-                month_evening_hours += 2
+                month_evening_hours += 2 # Счетчик вечерних часов
             elif day_hours == 3.5:
-                month_evening_hours += 2
-                month_night_hours += 1.5
+                month_evening_hours += 2 # Счетчик вечерних часов
+                month_night_hours += 1.5 # Счетчик ночных часов
             elif day_hours == 7.5:
-                month_night_hours += 5.5
+                month_night_hours += 5.5 # Счетчик ночных часов
         # Вывод часов за месяц
         table_model.setItem(
             row_index, 31, QtGui.QStandardItem(str(month_hours))
@@ -79,19 +83,17 @@ def hours_count():
     # Вывод суммарного количества часов за год по факту
     table_model.setItem(
         12, 31, QtGui.QStandardItem(str(year_hours_count))
-        )
+        ) # Общие часы
     table_model.setItem(
         12, 32, QtGui.QStandardItem(str(year_evening_hours_count))
-    )
+        ) # Вечерние часы
     table_model.setItem(
         12, 33, QtGui.QStandardItem(str(year_night_hours_count))
-    ) 
-
+        ) # Ночные часы
     # Вывод количества часов за год по норме    
     table_model.setItem(
         13, 31, QtGui.QStandardItem(str(norm_hours_in_year))
         )
-
     # Вывод количества часов переработки за год
     table_model.setItem(
         14, 31, QtGui.QStandardItem(
@@ -106,8 +108,8 @@ if __name__ == '__main__':
 
     grafik = {}
     month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    smena = {'Смена №1': [0, 11, 3.5, 7.5], 'Смена №2': [3.5, 7.5, 0, 11],
-             'Смена №3': [7.5, 0, 11, 3.5], 'Смена №4': [11, 3.5, 7.5, 0]}
+    smena = {'Смена №1': ['В', 11, 3.5, 7.5], 'Смена №2': [3.5, 7.5, 'В', 11],
+             'Смена №3': [7.5, 'В', 11, 3.5], 'Смена №4': [11, 3.5, 7.5, 'В']}
     month = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
              'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
     h_header = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
